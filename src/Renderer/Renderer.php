@@ -27,4 +27,10 @@ class Renderer implements RendererInterface
         }
         return $hash;
     }
+
+    public function renderToString(string $template): string
+    {
+        $parser = new Parser();
+        return $parser->parse($template);
+    }
 }

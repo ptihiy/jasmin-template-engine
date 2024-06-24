@@ -2,9 +2,11 @@
 
 namespace tests;
 
-use Jasmin\TemplateEngine\Parser\Parser;
 use PHPUnit\Framework\TestCase;
+use Jasmin\TemplateEngine\Parser\Parser;
+use PHPUnit\Framework\Attributes\CoversClass;
 
+#[CoversClass(Parser::class)]
 final class ParserTest extends TestCase
 {
     public function testParserParsesSimpleExpression(): void
