@@ -16,6 +16,10 @@
         <testsuite name="loader">
             <directory>tests/unit/TemplateLoader</directory>
         </testsuite>
+        <testsuite name="parser">
+            <directory>tests/unit/Parser</directory>
+            <directory>tests/unit/Filters</directory>
+        </testsuite>
     </testsuites>
 
     <source ignoreIndirectDeprecations="true" restrictNotices="true" restrictWarnings="true">

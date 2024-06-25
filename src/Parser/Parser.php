@@ -6,10 +6,7 @@ use Jasmin\TemplateEngine\Expressions\ExpressionProcessor;
 
 class Parser implements ParserInterface
 {
-    protected const OPENING_TAG = '{{';
-    protected const CLOSING_TAG = '}}';
-
-    public function parse(string $template): string
+    public function parse(string $template, array $data = []): string
     {
         return preg_replace_callback('/{{(.+?)}}/', [$this, 'replace'], $template);
     }
