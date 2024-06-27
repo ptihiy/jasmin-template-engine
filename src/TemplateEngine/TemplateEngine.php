@@ -18,7 +18,7 @@ class TemplateEngine implements TemplateEngineInterface
         $this->parser = new Parser($this->templateLoader);
     }
 
-    public function render(string $file, array $data): string
+    public function render(string $file, array $data): void
     {
         $path = $this->templateLoader->toRealPath($file);
         $hash = hash_file(hash_algos()[2], $path);
@@ -33,6 +33,6 @@ class TemplateEngine implements TemplateEngineInterface
         }
 
         extract($data);
-        return require $cachedFilePath;
+        require $cachedFilePath;
     }
 }
