@@ -18,12 +18,12 @@ class TemplateEngine implements TemplateEngineInterface
         $this->parser = new Parser($this->templateLoader);
     }
 
-    public function render(string $file): string
+    public function render(string $file, array $data): string
     {
         $path = $this->templateLoader->toRealPath($file);
         $hash = hash_file(hash_algos()[2], $path);
 
-        $cachedFilePath = realpath($this->cacheDir . '/' . $hash . '.php');
+        $cachedFilePath = $this->cacheDir . '/' . $hash . '.php';
 
         $renderedTemplate = $this->parser->parse(file_get_contents($path));
 
@@ -31,6 +31,8 @@ class TemplateEngine implements TemplateEngineInterface
         if (!file_exists($cachedFilePath)) {
             file_put_contents($cachedFilePath, $renderedTemplate);
         }
-        return $renderedTemplate;
+
+        extract($data);
+        return require $cachedFilePath;
     }
 }
