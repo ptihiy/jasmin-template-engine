@@ -13,10 +13,11 @@ class ExpressionProcessor
         $operand = $expr->getOperand();
         if (self::isString($operand)) {
             $operand = preg_replace('~^[\'"]?(.*?)[\'"]?$~', '$1', $operand);
-        }
-        if (self::isNumber($operand)) {
+        } elseif (self::isNumber($operand)) {
             // TODO: is it needed? PHP silently converts anyway
             $operand = (float) $operand;
+        } elseif (self::isVariable($operand)) {
+            $operand = self::shortCode('echo ' . self::resolveVariable($operand));
         }
         foreach ($expr->getFilters() as $filter) {
             $operand = (self::resolveFilter($filter))::filter($operand);
@@ -35,6 +36,11 @@ class ExpressionProcessor
         return preg_match('/^\d/', $operand);
     }
 
+    private static function isVariable(string $operand): bool
+    {
+        return preg_match('/^[a-z]/', $operand);
+    }
+
     private static function resolveFilter(string $filter): string
     {
         switch ($filter) {
@@ -45,5 +51,21 @@ class ExpressionProcessor
             case 'round':
                 return Round::class;
         }
+    }
+
+    public static function resolveVariable(string $operand): string
+    {
+        return preg_replace_callback('/^(\w+)(?:\.(\w+))?$/', function ($matches) {
+            if (count($matches) > 2) {
+                return "$$matches[1]['$matches[2]']";
+            } else {
+                return "$$matches[1]";
+            }
+        }, $operand);
+    }
+
+    public static function shortCode(string $code): string
+    {
+        return "<?php " . $code . " ?>";
     }
 }
