@@ -18,7 +18,7 @@ class TemplateEngine implements TemplateEngineInterface
         $this->parser = new Parser($this->templateLoader);
     }
 
-    public function render(string $file, array $data): void
+    public function render(string $file, array $data = []): void
     {
         $path = $this->templateLoader->toRealPath($file);
         $hash = hash_file(hash_algos()[2], $path);

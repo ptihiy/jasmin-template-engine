@@ -15,6 +15,21 @@ class Parser implements ParserInterface
 
     public function parse(string $template, array $data = []): string
     {
+        if (preg_match('/@extends\(\'(.*?)\'\)/', $template, $matches)) {
+            $extendedTemplatePath = $this->templateLoader->toRealPath($matches[1]);
+            if (!file_exists($extendedTemplatePath)) {
+                throw new InvalidArgumentException("Template file doesn't exist");
+            }
+            $extendedTemplate = file_get_contents($extendedTemplatePath);
+
+            $template = preg_replace_callback('/(@block\((.*?)\)(.*?)@endblock)/s', function ($matches) use ($template) {
+                if (preg_match('/(@block\((.*?)\)(.*?)@endblock)/s', $template, $blockMatches)) {
+                    return $blockMatches[3];
+                }
+                return $matches[2];
+            }, $extendedTemplate);
+        }
+
         $templateWithIncludes = preg_replace_callback('/@include\(\'(.*?)\'\)/', [$this, 'replaceInclude'], $template);
 
         return preg_replace_callback_array([
@@ -29,6 +44,24 @@ class Parser implements ParserInterface
         $stringToReplace = trim($matches[1]);
         $expr = ExpressionParser::parseExpression($stringToReplace);
         return ExPr::process($expr);
+    }
+
+    public function replaceExtends(array $matches): string
+    {
+        $extendedTemplatePath = $this->templateLoader->toRealPath($matches[1]);
+        if (!file_exists($extendedTemplatePath)) {
+            throw new InvalidArgumentException("Template file doesn't exist");
+        }
+        $extendedTemplate = file_get_contents($extendedTemplatePath);
+
+        var_dump(['ext' => $extendedTemplate]);
+
+        $substitutes =
+
+        $template = preg_replace_callback('/@block\((.*?)\)(.*?)@endblock/s', function ($matches) {
+            var_dump($matches);
+        }, $extendedTemplate);
+        return "";
     }
 
     public function replaceInclude(array $matches): string
