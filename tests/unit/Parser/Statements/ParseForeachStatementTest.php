@@ -15,15 +15,19 @@ final class ParseForeachStatementTest extends TestCase
         $parser = new Parser(new FileTemplateLoader(dirname(__DIR__, 2) . '/templates'));
 
         $items = ['one', 'two', 'three'];
-        $rawTemplate = <<<'TEMPLATE'
+        $template = <<<'EXPECTED'
 @foreach(items as item)
 {{ item }}
 @endforeach
-TEMPLATE;
-        $template = $parser->parse($rawTemplate, ['items' => $items]);
+EXPECTED;
+        $template = $parser->parse($template, ['items' => $items]);
 
-        var_dump($template);
+        $expected = <<<'EXPECTED'
+<?php foreach ($items as $item) { ?>
+<?php echo $item ?>
+<?php } ?>
+EXPECTED;
 
-        $this->assertSame("one\ntwo\nthree", $template);
+        $this->assertSame($expected, $template);
     }
 }
