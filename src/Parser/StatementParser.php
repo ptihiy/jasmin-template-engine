@@ -8,6 +8,6 @@ class StatementParser
 {
     public static function parseStatement(string $stmt): mixed
     {
-        var_dump($stmt);
+        //var_dump($stmt);
     }
 }

@@ -32,11 +32,13 @@ class Parser implements ParserInterface
 
         $templateWithIncludes = preg_replace_callback('/@include\(\'(.*?)\'\)/', [$this, 'replaceInclude'], $template);
 
+        $templatesWithStatements = preg_replace_callback('/@(if|foreach)\((.*?)\)(?=\s)(.*?)@end\1/s', [$this, 'replaceStatement'], $templateWithIncludes);
+
+        $templateWithVariables = preg_replace_callback('/{{(.+?)}}/', [$this, 'replaceExpression'], $templatesWithStatements);
+
         return preg_replace_callback_array([
-            '/{{(.+?)}}/' => [$this, 'replaceExpression'],
-            '/@(if|foreach)\((.*?)\)(.*?)@end\1/s' => [$this, 'replaceStatement'],
             '/@vite\(\'(.*?)\'\)/' => [$this, 'replaceVite'],
-        ], $templateWithIncludes);
+        ], $templateWithVariables);
     }
 
     private function replaceExpression(array $matches): string
@@ -44,24 +46,6 @@ class Parser implements ParserInterface
         $stringToReplace = trim($matches[1]);
         $expr = ExpressionParser::parseExpression($stringToReplace);
         return ExPr::process($expr);
-    }
-
-    public function replaceExtends(array $matches): string
-    {
-        $extendedTemplatePath = $this->templateLoader->toRealPath($matches[1]);
-        if (!file_exists($extendedTemplatePath)) {
-            throw new InvalidArgumentException("Template file doesn't exist");
-        }
-        $extendedTemplate = file_get_contents($extendedTemplatePath);
-
-        var_dump(['ext' => $extendedTemplate]);
-
-        $substitutes =
-
-        $template = preg_replace_callback('/@block\((.*?)\)(.*?)@endblock/s', function ($matches) {
-            var_dump($matches);
-        }, $extendedTemplate);
-        return "";
     }
 
     public function replaceInclude(array $matches): string
@@ -78,6 +62,8 @@ class Parser implements ParserInterface
         switch ($matches[1]) {
             case 'foreach':
                 return $this->replaceForeachStatement($matches);
+            case 'if':
+                return $this->replaceIfStatement($matches);
             default:
                 throw new InvalidArgumentException("Cannot process statement $matches[1]");
         }
@@ -93,9 +79,17 @@ class Parser implements ParserInterface
         return $foreach;
     }
 
+    private function replaceIfStatement(array $matches): string
+    {
+        $if = ExPr::shortCode("if (" . $matches[2] . ") {");
+        $if .= preg_replace(['~@else~', '~@elseif\((.*?)\)(?=\s)(.*?)~'], [Expr::shortCode('} else {'), Expr::shortCode('} elseif (\2) {')], $matches[3]);
+        $if .= ExPr::shortCode("}");
+
+        return $if;
+    }
+
     private function replaceVite(array $matches): string
     {
-        var_dump($matches);
         return 'yes';
     }
 }
