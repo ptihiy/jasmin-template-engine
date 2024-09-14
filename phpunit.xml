@@ -20,6 +20,9 @@
             <directory>tests/unit/Parser</directory>
             <directory>tests/unit/Filters</directory>
         </testsuite>
+        <testsuite name="engine">
+            <directory>tests/unit/TemplateEngine</directory>
+        </testsuite>
     </testsuites>
 
     <source ignoreIndirectDeprecations="true" restrictNotices="true" restrictWarnings="true">

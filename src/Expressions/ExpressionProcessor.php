@@ -17,7 +17,7 @@ class ExpressionProcessor
             // TODO: is it needed? PHP silently converts anyway
             $operand = (float) $operand;
         } elseif (self::isVariable($operand)) {
-            $operand = self::shortCode('echo ' . self::resolveVariable($operand));
+            $operand = self::shortCode('echo ' .  self::resolveVariable($operand));
         }
         foreach ($expr->getFilters() as $filter) {
             $operand = (self::resolveFilter($filter))::filter($operand);
